@@ -68,7 +68,7 @@ model_path = ModelsArtifactRepository(model_uri).download_artifacts(artifact_pat
 
 # COMMAND ----------
 
-mlflow.set_experiment("/Shared/glm-models/glm-python-models")
+mlflow.set_experiment("/Shared/glm-models/glm-python-models") #update to your experiment name
 
 with mlflow.start_run() as mlflow_run:
   loaded_model = tf.keras.models.load_model(f"{model_path}/model.h5")
