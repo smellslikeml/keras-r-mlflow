@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Load and Deploy Models with MLflow and Python
-# MAGIC The following notebook will help us register and deploy models trained in R. 
+# MAGIC The following notebook will help us register and deploy models trained in R by loading and logging them into a python context.
 
 # COMMAND ----------
 
@@ -20,15 +20,15 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC We'll set up some widgets to parametrize our notebook and accept user input
+# MAGIC We'll set up some widgets to parametrize our notebook and accept user input. Once executed, please update the fields accordingly.
 
 # COMMAND ----------
 
 # Creates widgets 
-dbutils.widgets.text("r_model_name","registered_model_name")
+dbutils.widgets.text("r_model_name","glm-r-model")
 dbutils.widgets.text("r_model_version","1")
 
-dbutils.widgets.text("python_model_name","model_name_to_register")
+dbutils.widgets.text("python_model_name","glm-python-model")
 
 # COMMAND ----------
 
@@ -66,9 +66,15 @@ model_path = ModelsArtifactRepository(model_uri).download_artifacts(artifact_pat
 
 # COMMAND ----------
 
-mlflow.set_experiment("/Shared/glm-example/glm-python-model")
+# MAGIC %md
+# MAGIC ### Log model to new experiment
+# MAGIC Now let's log our model to a new MLflow experiment which will house all the python models.
 
-with mlflow.start_run():
+# COMMAND ----------
+
+mlflow.set_experiment("/Shared/glm-models/glm-python-models")
+
+with mlflow.start_run() as mlflow_run:
   loaded_model = tf.keras.models.load_model(f"{model_path}/model.h5")
   mlflow.keras.log_model(loaded_model, "glm-models/", extra_pip_requirements=["protobuf<4.0.0"])
 
@@ -76,25 +82,15 @@ with mlflow.start_run():
 
 # MAGIC %md
 # MAGIC ### Register the Python model
-# MAGIC We've successfully logged the R model as a python model. Now let's register it appropriately so we may serve this model.
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC First, extract the id of the run above, logging our model.
-
-# COMMAND ----------
-
-python_model_uri = f"runs:/{ mlflow_run.info.run_id }/model"
-registered_model_version = mlflow.register_model(python_model_uri, python_model_name)
+# MAGIC We've successfully logged the R model as a python model. Now let's register it appropriately so we may serve this model. This can be done programmatically with the python mlflow client ([example here](https://docs.databricks.com/_static/notebooks/mlflow/mlflow-model-registry-example.html)), but for demo purposes, follow the UI instructions found [here](https://docs.databricks.com/applications/mlflow/model-registry-example.html#create-a-new-registered-model). 
+# MAGIC 
+# MAGIC ![register model](https://docs.databricks.com/_images/mlflow_ui_register_model.png)
 
 # COMMAND ----------
 
 # MAGIC %md 
 # MAGIC If you want a quick sanity check, here's how to load the now registered model:
 # MAGIC ```python
-# MAGIC python_model_version = registered_model_version.version
-# MAGIC 
 # MAGIC model = mlflow.pyfunc.load_model(model_uri=f"models:/{python_model_nam}/{python_model_version}")
 # MAGIC model.predict(input_X)
 # MAGIC ```
@@ -104,3 +100,5 @@ registered_model_version = mlflow.register_model(python_model_uri, python_model_
 # MAGIC %md
 # MAGIC ### Deploy the Python model via Model Serving
 # MAGIC Next, enable the [model serving](https://docs.databricks.com/applications/mlflow/model-serving.html#model-serving-from-model-registry) for this registered model via the UI. Once the model is served, any subsequent versions added to the registered model will also be exposed as a REST API endpoint.
+# MAGIC 
+# MAGIC ![mlflow serving](https://docs.databricks.com/_images/enable-serving.gif)

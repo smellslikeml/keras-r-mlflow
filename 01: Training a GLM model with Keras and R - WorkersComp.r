@@ -433,7 +433,7 @@ Output <- list(Design, Attention) %>% layer_dot(name='LocalGLM', axes=1) %>%
 
 # COMMAND ----------
 
-mlflow_set_experiment(experiment_id = "83447046007322") #Update with your experiment id
+mlflow_set_experiment(experiment_id = "83447046082600") #Update with your experiment id
 
 
 with(mlflow_start_run(), {
@@ -523,4 +523,6 @@ with(mlflow_start_run(), {
 
 # COMMAND ----------
 
-
+# MAGIC %md
+# MAGIC ### Register Model
+# MAGIC For easy access, let's register the model under the name `glm-r-model`. Navigate to your MLflow experiment and follow the UI instructions to register a new model under this name. See the [docs](https://docs.databricks.com/applications/mlflow/model-registry-example.html#create-a-new-registered-model).
