@@ -28,15 +28,11 @@
 dbutils.widgets.text("r_model_name","glm-r-model")
 dbutils.widgets.text("r_model_version","1")
 
-dbutils.widgets.text("python_model_name","glm-python-model")
-
 # COMMAND ----------
 
 # Define variables
 r_model_name = dbutils.widgets.get("r_model_name")
 r_model_version = dbutils.widgets.get("r_model_version")
-
-python_model_name = dbutils.widgets.get("python_model_name")
 
 # COMMAND ----------
 
